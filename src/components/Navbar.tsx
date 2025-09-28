@@ -1,0 +1,138 @@
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Sun, ShoppingCart, Menu, X, Zap } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+
+const categories = [
+  { name: 'Inverters', path: '/products/inverters' },
+  { name: 'Batteries', path: '/products/batteries' },
+  { name: 'Solar Panels', path: '/products/panels' },
+  { name: 'Kits', path: '/products/kits' },
+  { name: 'Combos', path: '/products/combos' },
+  { name: 'Charge Controllers', path: '/products/controllers' },
+];
+
+const Navbar: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getItemCount } = useCart();
+  const location = useLocation();
+  const itemCount = getItemCount();
+
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  if (isAdmin) return null;
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <img 
+              src="/logo.png" 
+              alt="SolarNaija Logo" 
+              className="h-10 w-auto object-contain"
+            />
+            <span className="text-xl font-bold text-gray-800">SolarNaija</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link 
+              to="/" 
+              className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+            >
+              Home
+            </Link>
+            
+            {/* Products Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center text-gray-700 hover:text-green-600 font-medium transition-colors">
+                Products
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              <div className="absolute top-full left-0 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                {categories.map((category) => (
+                  <Link
+                    key={category.path}
+                    to={category.path}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <Link 
+              to="/products" 
+              className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+            >
+              All Products
+            </Link>
+          </div>
+
+          {/* Cart and Mobile Menu */}
+          <div className="flex items-center space-x-4">
+            <Link 
+              to="/cart" 
+              className="relative p-2 text-gray-700 hover:text-green-600 transition-colors"
+            >
+              <ShoppingCart className="h-6 w-6" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 text-gray-700 hover:text-green-600"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                to="/"
+                className="block px-3 py-2 text-gray-700 hover:text-green-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link
+                to="/products"
+                className="block px-3 py-2 text-gray-700 hover:text-green-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                All Products
+              </Link>
+              {categories.map((category) => (
+                <Link
+                  key={category.path}
+                  to={category.path}
+                  className="block px-3 py-2 text-gray-700 hover:text-green-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
