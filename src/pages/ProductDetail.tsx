@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Star, ShoppingCart, MessageCircle, Minus, Plus, Check } from 'lucide-react';
+import { Star, ShoppingCart, MessageCircle, Minus, Plus, Check, Facebook, Twitter, Linkedin, Share2, Copy, Instagram } from 'lucide-react';
+import { trackEvent } from '../utils/analytics';
 import { supabase } from '../App';
 import { useCart } from '../context/CartContext';
 
@@ -60,6 +61,122 @@ const ProductDetail: React.FC = () => {
       const message = `Hi! I'm interested in ${product.name}. Can you provide more information?`;
       const url = `https://wa.me/${whatsappNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
+    }
+  };
+
+  // Sharing helpers
+  const [copied, setCopied] = useState(false);
+
+  const getProductUrl = () => {
+    try {
+      // If the page is already the canonical product URL, use it; otherwise construct
+      return `${window.location.origin}/product/${product?.id}`;
+    } catch (e) {
+      return `https://your-site.example/product/${product?.id}`;
+    }
+  };
+
+  const handleShareWeb = async () => {
+    if (!product) return;
+    const url = getProductUrl();
+    const title = product.name;
+    const text = `${product.name} - ₦${product.price.toLocaleString()}\n${product.description}`;
+    if ((navigator as any).share) {
+      try {
+        await (navigator as any).share({ title, text, url });
+        trackEvent('share', { method: 'web', productId: product.id });
+      } catch (err) {
+        // user probably cancelled
+        console.debug('Web share canceled or failed', err);
+      }
+    } else {
+      // fallback: open a simple share dialog (Twitter)
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+      window.open(shareUrl, '_blank', 'noopener');
+      trackEvent('share', { method: 'twitter_intent', productId: product.id });
+    }
+  };
+
+  const handleShareFacebook = () => {
+    const url = getProductUrl();
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'noopener');
+    if (product) trackEvent('share', { method: 'facebook', productId: product.id });
+  };
+
+  const handleShareTwitter = () => {
+    if (!product) return;
+    const url = getProductUrl();
+    const text = `${product.name} - ₦${product.price.toLocaleString()}`;
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'noopener');
+    trackEvent('share', { method: 'twitter', productId: product.id });
+  };
+
+  const handleShareLinkedin = () => {
+    const url = getProductUrl();
+    const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'noopener');
+    if (product) trackEvent('share', { method: 'linkedin', productId: product.id });
+  };
+
+  const handleCopyLink = async () => {
+    const url = getProductUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      if (product) trackEvent('share', { method: 'copy', productId: product.id });
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
+  };
+
+  const handleShareInstagram = async () => {
+    if (!product) return;
+    const url = getProductUrl();
+    const text = `${product.name} - ₦${product.price.toLocaleString()}\n${url}`;
+
+    // Prefer Web Share API when available (it will surface Instagram if installed)
+    if ((navigator as any).share) {
+      try {
+        await (navigator as any).share({ title: product.name, text, url });
+        if (product) trackEvent('share', { method: 'web', productId: product.id });
+        return;
+      } catch (err) {
+        console.debug('Web share failed', err);
+      }
+    }
+
+    // Try Instagram deep link (mobile)
+    try {
+      const deep = `instagram://share?text=${encodeURIComponent(text)}`;
+  // open in new window/tab; on mobile this may trigger the app
+  window.open(deep, '_blank');
+      // give it a moment; if nothing happens, we'll copy the link as a fallback
+      setTimeout(async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+          // also open Instagram web as a gentle fallback
+          window.open('https://www.instagram.com', '_blank', 'noopener');
+          if (product) trackEvent('share', { method: 'instagram_fallback', productId: product.id });
+        } catch (err) {
+          console.debug('Instagram fallback failed', err);
+        }
+      }, 600);
+    } catch (err) {
+      // final fallback: copy link and open Instagram web
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        window.open('https://www.instagram.com', '_blank', 'noopener');
+        if (product) trackEvent('share', { method: 'instagram_fallback', productId: product.id });
+      } catch (e) {
+        console.error('Instagram share fallback failed', e);
+      }
     }
   };
 
@@ -181,6 +298,45 @@ const ProductDetail: React.FC = () => {
                   <MessageCircle className="mr-2 h-5 w-5" />
                   WhatsApp Inquiry
                 </button>
+              </div>
+
+              {/* Social Share Buttons */}
+              <div className="flex items-center gap-3 mb-6">
+                <button
+                  onClick={handleShareWeb}
+                  className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50"
+                  aria-label="Share product"
+                  title="Share product (native share on mobile)"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Share</span>
+                </button>
+
+                <button onClick={handleShareFacebook} className="px-3 py-2 border rounded-md hover:bg-gray-50" aria-label="Share on Facebook" title="Share on Facebook">
+                  <Facebook className="h-4 w-4 text-blue-600" />
+                </button>
+
+                <button onClick={handleShareTwitter} className="px-3 py-2 border rounded-md hover:bg-gray-50" aria-label="Share on Twitter" title="Share on Twitter">
+                  <Twitter className="h-4 w-4 text-blue-400" />
+                </button>
+
+                <button onClick={handleShareLinkedin} className="px-3 py-2 border rounded-md hover:bg-gray-50" aria-label="Share on LinkedIn" title="Share on LinkedIn">
+                  <Linkedin className="h-4 w-4 text-blue-700" />
+                </button>
+
+                <button onClick={handleShareInstagram} className="px-3 py-2 border rounded-md hover:bg-gray-50" aria-label="Share on Instagram" title="Share on Instagram">
+                  <Instagram className="h-4 w-4 text-pink-600" />
+                </button>
+
+                <button onClick={handleWhatsAppInquiry} className="px-3 py-2 border rounded-md hover:bg-gray-50" aria-label="Share on WhatsApp" title="Contact on WhatsApp">
+                  <MessageCircle className="h-4 w-4 text-green-600" />
+                </button>
+
+                <button onClick={handleCopyLink} className="px-3 py-2 border rounded-md hover:bg-gray-50" aria-label="Copy link" title="Copy product link">
+                  <Copy className="h-4 w-4" />
+                </button>
+
+                {copied && <span className="text-sm text-green-600 ml-2">Link copied!</span>}
               </div>
 
               {/* Stock Status */}

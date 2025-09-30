@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || "+2349012345678";
@@ -61,11 +61,11 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300">info@solarnaija.com</span>
+                <span className="text-gray-300">info@solarnaija.store</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300">Lagos, Nigeria</span>
+                <span className="text-gray-300">Abuja, Nigeria</span>
               </div>
             </div>
           </div>

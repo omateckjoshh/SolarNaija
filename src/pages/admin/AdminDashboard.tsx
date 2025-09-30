@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, ShoppingCart, Users, TrendingUp, Eye, CreditCard as Edit, Trash2, Plus } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, Plus } from 'lucide-react';
 import { supabase } from '../../App';
 import { useAuth } from '../../context/AuthContext';
 

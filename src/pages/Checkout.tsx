@@ -5,8 +5,7 @@ import { useCart } from '../context/CartContext';
 import { supabase } from '../App';
 import { sendOrderNotification, sendSMSNotification } from '../utils/notifications';
 
-// PayStack configuration
-const PaystackPop = (window as any).PaystackPop;
+// PayStack configuration (script is loaded dynamically when needed)
 
 interface CustomerInfo {
   name: string;
@@ -92,7 +91,7 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!validateForm()) return;
 
     const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_live_fb5f8bdb1daf16b9c963451880e58f88e3e6637a';
@@ -101,61 +100,133 @@ const Checkout: React.FC = () => {
       return;
     }
 
+    const amount = Number(getTotalPrice());
+    if (!amount || amount <= 0) {
+      alert('Invalid payment amount. Please check your cart.');
+      return;
+    }
+
     setLoading(true);
-    
-    const handler = PaystackPop.setup({
-      key: paystackKey,
-      email: customerInfo.email,
-      amount: getTotalPrice() * 100, // Paystack expects kobo
-      currency: 'NGN',
-      firstname: customerInfo.name.split(' ')[0],
-      lastname: customerInfo.name.split(' ').slice(1).join(' ') || '',
-      phone: customerInfo.phone,
-      metadata: {
-        custom_fields: [
-          {
-            display_name: "Address",
-            variable_name: "address",
-            value: customerInfo.address
-          }
-        ]
-      },
-      callback: async function(response: any) {
+
+    // Ensure Paystack script is loaded
+    const loadPaystackScript = () => new Promise<void>((resolve, reject) => {
+      if ((window as any).PaystackPop) return resolve();
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load Paystack script'));
+      document.body.appendChild(script);
+    });
+
+    try {
+      await loadPaystackScript();
+      const Paystack = (window as any).PaystackPop;
+      if (!Paystack) throw new Error('Paystack is not available');
+
+      // Ensure setup exists
+      if (typeof Paystack.setup !== 'function') throw new Error('Paystack.setup is not a function');
+
+      const handlePaymentSuccess = async (response: any) => {
         try {
-          // Create order in database
+          const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+
+          // If a backend endpoint is configured, call it to verify payment and create order
+          if (apiEndpoint) {
+            // Verify payment server-side
+            const verifyResp = await fetch(`${apiEndpoint.replace(/\/$/, '')}/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reference: response.reference })
+            });
+
+            if (!verifyResp.ok) {
+              const txt = await verifyResp.text().catch(() => '');
+              throw new Error('Payment verification failed: ' + txt);
+            }
+
+            // Create order server-side
+            const createResp = await fetch(`${apiEndpoint.replace(/\/$/, '')}/create-order`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                customer: customerInfo,
+                items: items,
+                paymentReference: response.reference,
+                verify: false // we already verified above
+              })
+            });
+
+            if (!createResp.ok) {
+              const txt = await createResp.text().catch(() => '');
+              throw new Error('Server order creation failed: ' + txt);
+            }
+
+            await createResp.json();
+            // Optionally notify client-side analytics
+            clearCart();
+            navigate('/', { state: { orderSuccess: true, reference: response.reference } });
+            return;
+          }
+
+          // Fallback: existing client-side order creation and notifications
           const order = await createOrder(response.reference);
-          
-          // Send notifications
           await sendOrderNotification(order);
           await sendSMSNotification(
             customerInfo.phone,
             `Thank you for your order! Your payment of ₦${getTotalPrice().toLocaleString()} has been confirmed. Reference: ${response.reference}. We'll contact you soon for delivery details.`
           );
-          
-          // Clear cart
           clearCart();
-          
-          // Navigate to success page
-          navigate('/', { 
-            state: { 
-              orderSuccess: true, 
-              reference: response.reference 
-            }
-          });
+          navigate('/', { state: { orderSuccess: true, reference: response.reference } });
         } catch (error) {
           console.error('Order creation failed:', error);
-          alert('Payment successful but order creation failed. Please contact support with reference: ' + response.reference);
+          alert('Payment succeeded but order creation failed. Please contact support with reference: ' + response.reference);
         } finally {
           setLoading(false);
         }
-      },
-      onClose: function() {
-        setLoading(false);
-        alert('Payment cancelled');
-      }
-    });
+      };
 
-    handler.openIframe();
+      const handler = Paystack.setup({
+        key: paystackKey,
+        email: customerInfo.email,
+        amount: Math.round(amount * 100), // kobo
+        currency: 'NGN',
+        firstname: customerInfo.name.split(' ')[0] || customerInfo.name,
+        lastname: customerInfo.name.split(' ').slice(1).join(' ') || '',
+        phone: customerInfo.phone,
+        metadata: {
+          custom_fields: [
+            { display_name: 'Address', variable_name: 'address', value: customerInfo.address }
+          ]
+        },
+        // Provide plain functions so Paystack sees valid function attributes
+        callback: function(response: any) {
+          try {
+            // quick type/log check
+            console.log('Paystack callback invoked, response:', response);
+            if (!response || !response.reference) {
+              console.warn('Paystack response missing reference', response);
+            }
+            // call async worker
+            void handlePaymentSuccess(response);
+          } catch (cbErr) {
+            console.error('Error in Paystack callback wrapper:', cbErr);
+            setLoading(false);
+          }
+        },
+        onClose: function() {
+          setLoading(false);
+          console.info('Paystack payment window closed by user');
+        }
+      });
+
+      // Open Paystack iframe
+      handler.openIframe();
+    } catch (err: any) {
+      console.error('Payment initialization failed:', err);
+      alert(err?.message || 'Failed to initialize payment. Please try again later.');
+      setLoading(false);
+    }
   };
 
   const handleWhatsAppOrder = () => {

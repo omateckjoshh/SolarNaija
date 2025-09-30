@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, Zap, Battery, Shield, Truck, MessageCircle, Star, ArrowRight } from 'lucide-react';
+import { Sun, Zap, Battery, Shield, MessageCircle, Star, ArrowRight } from 'lucide-react';
 import { supabase } from '../App';
 
 interface Product {
@@ -41,7 +41,8 @@ const Home: React.FC = () => {
     {
       name: 'Solar Inverters',
       description: 'High-efficiency inverters for your solar system',
-      image: 'https://th.bing.com/th/id/OIP.vNpZ1D8DZQ2azQc61YA3DwHaE8?w=295&h=196&c=7&r=0&o=7&pid=1.7&rm=3',
+      image: 'https://tse4.mm.bing.net/th/id/OIP.u5EX9fR_QBJ1O9c7508_YQAAAA?w=469&h=687&rs=1&pid=ImgDetMain&o=7&rm=3',
+      path: '/products/inverters',
       icon: <Zap className="h-8 w-8" />
     },
     {
@@ -109,55 +110,80 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-white">
+  {/* Featured Products Section (moved up) */}
+  <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose SolarNaija?
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+              Featured Products
             </h2>
-            <p className="text-xl text-gray-600">
-              We provide the best solar solutions with unmatched quality and service
+            <p className="text-base text-gray-600">
+              Discover our most popular and highly-rated solar products
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: <Shield className="h-12 w-12 text-green-600" />,
-                title: "Quality Guaranteed",
-                description: "All products come with comprehensive warranties and quality assurance"
-              },
-              {
-                icon: <Truck className="h-12 w-12 text-green-600" />,
-                title: "Fast Delivery",
-                description: "Quick and reliable delivery across Nigeria with real-time tracking"
-              },
-              {
-                icon: <MessageCircle className="h-12 w-12 text-green-600" />,
-                title: "Expert Support",
-                description: "24/7 customer support via WhatsApp and dedicated helpline"
-              },
-              {
-                icon: <Star className="h-12 w-12 text-green-600" />,
-                title: "Best Prices",
-                description: "Competitive pricing with flexible payment options including Paystack"
-              }
-            ].map((feature, index) => (
-              <div key={index} className="text-center group">
-                <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit group-hover:bg-green-100 transition-colors">
-                  {feature.icon}
+
+          {loading ? (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+              {featuredProducts.length > 0 ? (
+                featuredProducts.map((product) => (
+                  <div key={product.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-36 sm:h-44 object-cover rounded-t-xl"
+                    />
+                    <div className="p-3 sm:p-4">
+                      <h3 className="text-md sm:text-lg font-semibold text-gray-900 mb-1 line-clamp-2">{product.name}</h3>
+                      <div className="flex items-center mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < product.rating
+                                ? 'text-yellow-400 fill-current'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                        <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                        <span className="text-lg font-bold text-green-600">₦{product.price.toLocaleString()}</span>
+
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                          <Link
+                            to={`/product/${product.id}`}
+                            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm transition-colors text-center"
+                          >
+                            View Details
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <p className="text-gray-600">No featured products available at the moment.</p>
+                  <Link
+                    to="/products"
+                    className="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    View All Products
+                  </Link>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-16 bg-gray-50">
+  {/* Categories Section */}
+  <section className="py-10 sm:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -168,7 +194,7 @@ const Home: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => (
               <Link
                 key={index}
@@ -201,79 +227,52 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Products Section */}
-      <section className="py-16 bg-white">
+  {/* 'Why Choose SolarNaija?' moved down below categories */}
+  <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Featured Products
-            </h2>
-            <p className="text-xl text-gray-600">
-              Discover our most popular and highly-rated solar products
-            </p>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Why Choose SolarNaija?</h2>
+            <p className="text-base text-gray-600">We provide the best solar solutions with unmatched quality and service</p>
           </div>
-          
-          {loading ? (
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
+                <Shield className="h-12 w-12 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Quality Guaranteed</h3>
+              <p className="text-gray-600">All products come with comprehensive warranties and quality assurance</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProducts.length > 0 ? (
-                featuredProducts.map((product) => (
-                  <div key={product.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-cover rounded-t-xl"
-                    />
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
-                      <div className="flex items-center mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < product.rating
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                        <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-green-600">
-                          ₦{product.price.toLocaleString()}
-                        </span>
-                        <Link
-                          to={`/product/${product.id}`}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-gray-600">No featured products available at the moment.</p>
-                  <Link
-                    to="/products"
-                    className="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
-                  >
-                    View All Products
-                  </Link>
-                </div>
-              )}
+
+            <div className="text-center">
+              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
+                <MessageCircle className="h-12 w-12 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Expert Support</h3>
+              <p className="text-gray-600">24/7 customer support via WhatsApp and dedicated helpline</p>
             </div>
-          )}
+
+            <div className="text-center">
+              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
+                <Star className="h-12 w-12 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Best Prices</h3>
+              <p className="text-gray-600">Competitive pricing with flexible payment options including Paystack</p>
+            </div>
+
+            <div className="text-center">
+              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
+                <Zap className="h-12 w-12 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Fast Delivery</h3>
+              <p className="text-gray-600">Quick and reliable delivery across Nigeria with real-time tracking</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-green-600 to-blue-600 text-white">
+  {/* CTA Section */}
+  <section className="py-12 sm:py-16 bg-gradient-to-r from-green-600 to-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Go Solar?

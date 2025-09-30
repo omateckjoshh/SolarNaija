@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Sun, ShoppingCart, Menu, X, Zap } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Menu, X, Search } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const categories = [
@@ -16,7 +16,78 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { getItemCount } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
   const itemCount = getItemCount();
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Close overlay when clicking outside or pressing Escape
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (!isSearchOpen) return;
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!isSearchOpen) return;
+      if (e.key === 'Escape') setIsSearchOpen(false);
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSearchOpen]);
+
+  // Auto-focus when opening
+  useEffect(() => {
+    if (isSearchOpen) {
+      // small timeout to wait for transition
+      setTimeout(() => inputRef.current?.focus(), 120);
+    }
+  }, [isSearchOpen]);
+
+  // Keyboard shortcuts: / or Ctrl+K to open search (unless focused on an input)
+  useEffect(() => {
+    function handleGlobalKey(e: KeyboardEvent) {
+      // ignore when focused in an input/textarea
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || (active as HTMLElement).isContentEditable)) return;
+
+      if (e.key === '/' && !isSearchOpen) {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((s) => !s);
+      }
+    }
+
+    document.addEventListener('keydown', handleGlobalKey);
+    return () => document.removeEventListener('keydown', handleGlobalKey);
+  }, [isSearchOpen]);
+
+  // Debounce updating the URL while typing so ProductList can fetch server-side results
+  useEffect(() => {
+    if (!isSearchOpen) return; // only update while overlay open
+    const handler = setTimeout(() => {
+      const q = searchQuery.trim();
+      if (q) navigate(`/products?q=${encodeURIComponent(q)}`, { replace: true });
+      else navigate('/products', { replace: true });
+    }, 450);
+
+    return () => clearTimeout(handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
   const isAdmin = location.pathname.startsWith('/admin');
 
@@ -77,6 +148,74 @@ const Navbar: React.FC = () => {
 
           {/* Cart and Mobile Menu */}
           <div className="flex items-center space-x-4">
+            {/* Search button + overlay */}
+            <div className="relative">
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                aria-label="Search products"
+                className="p-2 text-gray-700 hover:text-green-600 transition-colors"
+              >
+                <Search className="h-6 w-6" />
+              </button>
+
+              {/* Search overlay/input - kept in DOM for smooth transitions */}
+              <div
+                ref={searchRef}
+                role="dialog"
+                aria-modal="false"
+                className={`absolute right-0 mt-2 w-full sm:w-80 bg-white shadow-lg rounded-md p-3 z-50 transform transition-all duration-150 origin-top-right ${
+                  isSearchOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const q = searchQuery.trim();
+                        if (q) navigate(`/products?q=${encodeURIComponent(q)}`);
+                        else navigate('/products');
+                        setIsSearchOpen(false);
+                      }
+                      if (e.key === 'Escape') {
+                        setIsSearchOpen(false);
+                      }
+                    }}
+                    placeholder="Search products..."
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+
+                  {/* Clear button inside overlay */}
+                  {searchQuery && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        inputRef.current?.focus();
+                      }}
+                      aria-label="Clear search"
+                      className="text-gray-500 hover:text-gray-700 p-1"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      const q = searchQuery.trim();
+                      if (q) navigate(`/products?q=${encodeURIComponent(q)}`);
+                      else navigate('/products');
+                      setIsSearchOpen(false);
+                    }}
+                    className="px-3 py-2 bg-green-600 text-white rounded-md"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+            </div>
             <Link 
               to="/cart" 
               className="relative p-2 text-gray-700 hover:text-green-600 transition-colors"
