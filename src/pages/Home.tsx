@@ -78,19 +78,19 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen">
   {/* Hero Section */}
-  <section className="relative bg-gradient-to-br from-green-600 via-blue-600 to-green-700 text-white py-6 sm:py-20 min-h-[220px] sm:min-h-[420px]">
+  <section className="relative bg-gradient-to-br from-green-600 via-blue-600 to-green-700 text-white py-4 sm:py-20 min-h-[160px] sm:min-h-[420px]">
         <div className="absolute inset-0 bg-black opacity-20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-3 sm:mb-6">
               Power Your Future with
               <span className="block text-yellow-400">Solar Energy</span>
             </h1>
-            <p className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto">
-              Nigeria's premier destination for high-quality solar inverters, batteries, 
+            <p className="text-sm sm:text-xl md:text-2xl mb-4 sm:mb-8 max-w-3xl mx-auto">
+              Nigeria's premium destination for high-quality solar inverters, batteries, 
               panels and complete energy solutions. Clean energy, reliable power.
             </p>
-            <div className="flex flex-row gap-3 justify-center items-center flex-wrap">
+            <div className="flex justify-center">
               <Link
                 to="/products"
                 className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold sm:text-lg transition-colors inline-flex items-center justify-center"
@@ -98,13 +98,6 @@ const Home: React.FC = () => {
                 Shop Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <button
-                onClick={handleWhatsAppClick}
-                className="border-2 border-white hover:bg-white hover:text-green-600 px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold sm:text-lg transition-colors inline-flex items-center justify-center"
-              >
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Chat on WhatsApp
-              </button>
             </div>
           </div>
         </div>
