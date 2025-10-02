@@ -130,7 +130,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, onCancel, initialDa
             </div>
 
             {/* Product Name */}
-            <div>
+            <div className="col-span-2 md:col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Product Name *
               </label>
@@ -139,7 +139,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, onCancel, initialDa
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full min-w-0 px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow duration-150 ease-in-out"
                 required
               />
             </div>
@@ -162,24 +162,32 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, onCancel, initialDa
             </div>
 
             {/* Category */}
-            <div>
+            <div className="col-span-2 md:col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category *
               </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                required
-              >
-                <option value="inverters">Inverters</option>
-                <option value="batteries">Batteries</option>
-                <option value="panels">Solar Panels</option>
-                <option value="kits">Kits</option>
-                <option value="combos">Combos</option>
-                <option value="controllers">Charge Controllers</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="w-full min-w-0 px-4 py-2 sm:py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow duration-150 ease-in-out appearance-none hover:shadow-sm"
+                  required
+                  style={{
+                    backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23777\' stroke-width=\'1.5\'><path d=\'M6 8l4 4 4-4\'/></svg>")',
+                    backgroundPosition: 'right .75rem center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '1rem'
+                  }}
+                >
+                  <option value="inverters">Inverters</option>
+                  <option value="batteries">Batteries</option>
+                  <option value="panels">Solar Panels</option>
+                  <option value="kits">Kits</option>
+                  <option value="combos">Combos</option>
+                  <option value="controllers">Charge Controllers</option>
+                </select>
+              </div>
             </div>
 
             {/* Description */}
