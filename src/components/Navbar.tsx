@@ -163,9 +163,10 @@ const Navbar: React.FC = () => {
                 ref={searchRef}
                 role="dialog"
                 aria-modal="false"
-                className={`absolute right-0 mt-2 w-full sm:w-80 bg-white shadow-lg rounded-md p-3 z-50 transform transition-all duration-150 origin-top-right ${
+                className={`absolute right-0 mt-2 w-full sm:w-80 bg-white/90 backdrop-blur-sm shadow-lg rounded-md p-3 z-50 transform transition-all duration-150 origin-top-right border border-gray-100 ${
                   isSearchOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
                 }`}
+                style={{ transitionProperty: 'opacity, transform' }}
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -185,7 +186,7 @@ const Navbar: React.FC = () => {
                       }
                     }}
                     placeholder="Search products..."
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-200 ease-in-out placeholder-gray-400 focus:placeholder-transparent"
                   />
 
                   {/* Clear button inside overlay */}

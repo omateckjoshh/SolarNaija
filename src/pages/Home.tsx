@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, Zap, Battery, Shield, MessageCircle, Star, ArrowRight } from 'lucide-react';
+import { Sun, Zap, Battery, Shield, MessageCircle, Star, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../App';
 
 interface Product {
@@ -15,6 +15,7 @@ interface Product {
 const Home: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetchFeaturedProducts();
@@ -228,37 +229,81 @@ const Home: React.FC = () => {
             <p className="text-base text-gray-600">We provide the best solar solutions with unmatched quality and service</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
-                <Shield className="h-12 w-12 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Quality Guaranteed</h3>
-              <p className="text-gray-600">All products come with comprehensive warranties and quality assurance</p>
-            </div>
+          {/* Horizontal scroller for small screens, grid on md+ */}
+          <div className="relative md:grid md:grid-cols-4 gap-6">
+            <div className="flex md:block relative">
+              {/* left gradient hint (mobile) */}
+              <div
+                aria-hidden
+                className="absolute left-0 top-0 bottom-0 w-8 md:hidden pointer-events-none"
+                style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0))' }}
+              />
 
-            <div className="text-center">
-              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
-                <MessageCircle className="h-12 w-12 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Expert Support</h3>
-              <p className="text-gray-600">24/7 customer support via WhatsApp and dedicated helpline</p>
-            </div>
+              <button
+                onClick={() => {
+                  const el = scrollerRef.current;
+                  if (el) el.scrollBy({ left: -220, behavior: 'smooth' });
+                }}
+                aria-label="Scroll left"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 md:hidden bg-white/90 rounded-full p-2 shadow-sm"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-700" />
+              </button>
 
-            <div className="text-center">
-              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
-                <Star className="h-12 w-12 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Best Prices</h3>
-              <p className="text-gray-600">Competitive pricing with flexible payment options including Paystack</p>
-            </div>
+              <div
+                ref={scrollerRef}
+                className="flex gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-3 -mx-4 px-4 md:mx-0 md:px-0 smooth-scroll"
+              >
+                <div className="text-center flex-shrink-0 w-56 md:w-auto snap-start transition-transform duration-200 hover:scale-105 p-3 rounded-lg">
+                  <div className="mx-auto mb-3 p-3 bg-green-50 rounded-full w-fit">
+                    <Shield className="h-12 w-12 text-green-600" />
+                  </div>
+                  <h3 className="text-md font-semibold text-gray-900 mb-1">Quality Guaranteed</h3>
+                  <p className="text-sm text-gray-600">All products come with comprehensive warranties and quality assurance</p>
+                </div>
 
-            <div className="text-center">
-              <div className="mx-auto mb-4 p-3 bg-green-50 rounded-full w-fit">
-                <Zap className="h-12 w-12 text-green-600" />
+                <div className="text-center flex-shrink-0 w-56 md:w-auto snap-start transition-transform duration-200 hover:scale-105 p-3 rounded-lg">
+                  <div className="mx-auto mb-3 p-3 bg-green-50 rounded-full w-fit">
+                    <MessageCircle className="h-12 w-12 text-green-600" />
+                  </div>
+                  <h3 className="text-md font-semibold text-gray-900 mb-1">Expert Support</h3>
+                  <p className="text-sm text-gray-600">24/7 customer support via WhatsApp and dedicated helpline</p>
+                </div>
+
+                <div className="text-center flex-shrink-0 w-56 md:w-auto snap-start transition-transform duration-200 hover:scale-105 p-3 rounded-lg">
+                  <div className="mx-auto mb-3 p-3 bg-green-50 rounded-full w-fit">
+                    <Star className="h-12 w-12 text-green-600" />
+                  </div>
+                  <h3 className="text-md font-semibold text-gray-900 mb-1">Best Prices</h3>
+                  <p className="text-sm text-gray-600">Competitive pricing with flexible payment options including Paystack</p>
+                </div>
+
+                <div className="text-center flex-shrink-0 w-56 md:w-auto snap-start transition-transform duration-200 hover:scale-105 p-3 rounded-lg">
+                  <div className="mx-auto mb-3 p-3 bg-green-50 rounded-full w-fit">
+                    <Zap className="h-12 w-12 text-green-600" />
+                  </div>
+                  <h3 className="text-md font-semibold text-gray-900 mb-1">Fast Delivery</h3>
+                  <p className="text-sm text-gray-600">Quick and reliable delivery across Nigeria with real-time tracking</p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Fast Delivery</h3>
-              <p className="text-gray-600">Quick and reliable delivery across Nigeria with real-time tracking</p>
+
+              <button
+                onClick={() => {
+                  const el = scrollerRef.current;
+                  if (el) el.scrollBy({ left: 220, behavior: 'smooth' });
+                }}
+                aria-label="Scroll right"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 md:hidden bg-white/90 rounded-full p-2 shadow-sm"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-700" />
+              </button>
+
+              {/* right gradient hint (mobile) */}
+              <div
+                aria-hidden
+                className="absolute right-0 top-0 bottom-0 w-8 md:hidden pointer-events-none"
+                style={{ backgroundImage: 'linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0))' }}
+              />
             </div>
           </div>
         </div>
