@@ -230,7 +230,7 @@ const Home: React.FC = () => {
           </div>
 
           {/* Horizontal scroller for small screens, grid on md+ */}
-          <div className="relative md:grid md:grid-cols-4 gap-6">
+          <div className="relative">
             <div className="flex md:block relative">
               {/* left gradient hint (mobile) */}
               <div
@@ -252,7 +252,7 @@ const Home: React.FC = () => {
 
               <div
                 ref={scrollerRef}
-                className="flex gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-3 -mx-4 px-4 md:mx-0 md:px-0 smooth-scroll"
+                className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 md:mx-0 md:px-0 smooth-scroll md:grid md:grid-cols-4 md:gap-6 md:pb-0 md:snap-none"
               >
                 <div className="text-center flex-shrink-0 w-56 md:w-auto snap-start transition-transform duration-200 hover:scale-105 p-3 rounded-lg">
                   <div className="mx-auto mb-3 p-3 bg-green-50 rounded-full w-fit">
