@@ -49,6 +49,12 @@ export function initFacebookPixel(pixelId?: string) {
 
     win.fbq('init', pixelId);
     win.fbq('consent', 'grant');
+    // Track initial page view
+    try {
+      win.fbq('track', 'PageView');
+    } catch (err) {
+      // ignore
+    }
   } catch (err) {
     console.debug('initFacebookPixel error', err);
   }

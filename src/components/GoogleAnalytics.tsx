@@ -15,6 +15,14 @@ const GoogleAnalytics: React.FC = () => {
     if (FB_PIXEL_ID) {
       try {
         initFacebookPixel(FB_PIXEL_ID);
+        // Add noscript fallback image for browsers with JS disabled
+        const noscriptImg = document.createElement('img');
+        noscriptImg.setAttribute('height', '1');
+        noscriptImg.setAttribute('width', '1');
+        noscriptImg.setAttribute('style', 'display:none');
+        noscriptImg.setAttribute('id', 'fb-pixel-noscript');
+        noscriptImg.setAttribute('src', `https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`);
+        document.head.appendChild(noscriptImg);
       } catch (err) {
         console.debug('initFacebookPixel failed', err);
       }
@@ -42,6 +50,8 @@ const GoogleAnalytics: React.FC = () => {
       // Cleanup scripts on unmount
       document.head.removeChild(script1);
       document.head.removeChild(script2);
+      const noscriptImg = document.getElementById('fb-pixel-noscript');
+      if (noscriptImg && noscriptImg.parentNode) noscriptImg.parentNode.removeChild(noscriptImg);
     };
   }, []);
 
