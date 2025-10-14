@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { initFacebookPixel } from '../utils/analytics';
 
 declare global {
   interface Window {
@@ -9,7 +10,16 @@ declare global {
 const GoogleAnalytics: React.FC = () => {
   useEffect(() => {
     const GA_ID = import.meta.env.VITE_GA_ID;
+    const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID;
     
+    if (FB_PIXEL_ID) {
+      try {
+        initFacebookPixel(FB_PIXEL_ID);
+      } catch (err) {
+        console.debug('initFacebookPixel failed', err);
+      }
+    }
+
     if (!GA_ID) return;
 
     // Load Google Analytics script

@@ -4,6 +4,7 @@ import { CreditCard, User, MapPin, Phone, Mail, Shield } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../App';
 import { sendOrderNotification, sendSMSNotification } from '../utils/notifications';
+import { trackPurchase, initFacebookPixel } from '../utils/analytics';
 
 // PayStack configuration (script is loaded dynamically when needed)
 
@@ -163,7 +164,13 @@ const Checkout: React.FC = () => {
             }
 
             await createResp.json();
-            // Optionally notify client-side analytics
+            // Track purchase (server-side created order)
+            try {
+              const amountValue = Number(getTotalPrice()) || 0;
+              trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference });
+            } catch (trackErr) {
+              console.debug('trackPurchase error (server flow)', trackErr);
+            }
             clearCart();
             navigate('/', { state: { orderSuccess: true, reference: response.reference } });
             return;
@@ -176,6 +183,15 @@ const Checkout: React.FC = () => {
             customerInfo.phone,
             `Thank you for your order! Your payment of ₦${getTotalPrice().toLocaleString()} has been confirmed. Reference: ${response.reference}. We'll contact you soon for delivery details.`
           );
+
+          // Track purchase (client-side fallback flow)
+          try {
+            const amountValue = Number(getTotalPrice()) || 0;
+            trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference, content_ids: order?.id ? [String(order.id)] : [] });
+          } catch (trackErr) {
+            console.debug('trackPurchase error (client flow)', trackErr);
+          }
+
           clearCart();
           navigate('/', { state: { orderSuccess: true, reference: response.reference } });
         } catch (error) {
