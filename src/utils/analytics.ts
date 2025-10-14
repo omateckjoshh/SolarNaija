@@ -60,7 +60,7 @@ export function initFacebookPixel(pixelId?: string) {
   }
 }
 
-export function trackFacebookPurchase(options: { value?: number; currency?: string; content_ids?: string[]; [k: string]: any } = {}) {
+export function trackFacebookPurchase(options: { value?: number; currency?: string; content_ids?: string[]; event_id?: string; [k: string]: any } = {}) {
   try {
     const win = window as any;
     if (win.fbq && typeof win.fbq === 'function') {
@@ -68,6 +68,7 @@ export function trackFacebookPurchase(options: { value?: number; currency?: stri
         value: options.value || 0,
         currency: options.currency || 'NGN',
         content_ids: options.content_ids || [],
+        event_id: options.event_id,
         ...options
       });
     }
@@ -77,14 +78,14 @@ export function trackFacebookPurchase(options: { value?: number; currency?: stri
 }
 
 // High-level purchase tracker: pushes to dataLayer/gtag and FB pixel
-export function trackPurchase(payload: { value: number; currency?: string; content_ids?: string[]; reference?: string } ) {
+export function trackPurchase(payload: { value: number; currency?: string; content_ids?: string[]; reference?: string; event_id?: string } ) {
   try {
-    const { value, currency = 'NGN', content_ids = [], reference } = payload;
-    // Generic event for GTM/gtag
-    trackEvent('purchase', { value, currency, content_ids, reference });
+    const { value, currency = 'NGN', content_ids = [], reference, event_id } = payload;
+    // Generic event for GTM/gtag (include event_id for dedupe)
+    trackEvent('purchase', { value, currency, content_ids, reference, event_id });
 
-    // Facebook pixel
-    trackFacebookPurchase({ value, currency, content_ids, reference });
+    // Facebook pixel (include event_id for dedupe)
+    trackFacebookPurchase({ value, currency, content_ids, reference, event_id });
   } catch (err) {
     console.debug('trackPurchase error', err);
   }

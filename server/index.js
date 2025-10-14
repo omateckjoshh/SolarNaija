@@ -19,6 +19,51 @@ const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET;
 const FROM_EMAIL = process.env.FROM_EMAIL || 'orders@solarnaija.store';
 const FROM_NAME = process.env.FROM_NAME || 'SolarNaija';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'support@solarnaija.store';
+const FB_PIXEL_ID = process.env.FB_PIXEL_ID || process.env.VITE_FB_PIXEL_ID;
+const FB_CAPI_ACCESS_TOKEN = process.env.FB_CAPI_ACCESS_TOKEN;
+const crypto = require('crypto');
+
+function sha256Lower(input = '') {
+  return crypto.createHash('sha256').update(String(input || '').trim().toLowerCase()).digest('hex');
+}
+
+async function sendFacebookCAPI({ pixelId, accessToken, eventName = 'Purchase', eventId, value = 0, currency = 'NGN', email, phone, content_ids = [], order_id, event_source_url = '' }) {
+  if (!pixelId || !accessToken) return null;
+  try {
+    const body = {
+      data: [
+        {
+          event_name: eventName,
+          event_time: Math.floor(Date.now() / 1000),
+          event_id: eventId,
+          event_source_url,
+          user_data: {
+            em: email ? sha256Lower(email) : undefined,
+            ph: phone ? sha256Lower(String(phone).replace(/\D/g, '')) : undefined
+          },
+          custom_data: {
+            value,
+            currency,
+            content_ids: content_ids || [],
+            order_id
+          }
+        }
+      ]
+    };
+
+    const resp = await fetch(`https://graph.facebook.com/v16.0/${pixelId}/events?access_token=${accessToken}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const json = await resp.json();
+    console.log('FB CAPI response', json);
+    return json;
+  } catch (err) {
+    console.error('sendFacebookCAPI error', err);
+    return null;
+  }
+}
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   console.error('Supabase server keys are required. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
@@ -169,6 +214,29 @@ app.post('/create-order', async (req, res) => {
       console.error('Notification sending failed (non-fatal):', notifErr);
     }
 
+    // Server-side Facebook Conversions API (non-blocking)
+    try {
+      const { event_id } = req.body || {};
+      if (FB_PIXEL_ID && FB_CAPI_ACCESS_TOKEN) {
+        // send CAPI event asynchronously
+        void sendFacebookCAPI({
+          pixelId: FB_PIXEL_ID,
+          accessToken: FB_CAPI_ACCESS_TOKEN,
+          eventName: 'Purchase',
+          eventId: event_id || undefined,
+          value: total,
+          currency: 'NGN',
+          email: customer.email,
+          phone: customer.phone,
+          content_ids: orderItems.map(i => String(i.product_id)),
+          order_id: order.id,
+          event_source_url: req.get('origin') || ''
+        });
+      }
+    } catch (capiErr) {
+      console.error('Facebook CAPI send failed (non-fatal):', capiErr);
+    }
+
     return res.json({ ok: true, order });
   } catch (err) {
     console.error('create-order error', err);
@@ -241,6 +309,36 @@ app.post('/notify', async (req, res) => {
   } catch (err) {
     console.error('notify error', err);
     return res.status(500).json({ error: 'Notification failed' });
+  }
+});
+
+// Lightweight endpoint to accept FB Conversions API events from the client (useful for fallbacks)
+app.post('/fb-capi', async (req, res) => {
+  try {
+    const { event_id, value = 0, currency = 'NGN', email, phone, content_ids = [], order_id, event_name = 'Purchase', event_source_url } = req.body || {};
+
+    if (!FB_PIXEL_ID || !FB_CAPI_ACCESS_TOKEN) {
+      return res.status(500).json({ error: 'Facebook CAPI not configured on server' });
+    }
+
+    const result = await sendFacebookCAPI({
+      pixelId: FB_PIXEL_ID,
+      accessToken: FB_CAPI_ACCESS_TOKEN,
+      eventName: event_name,
+      eventId: event_id,
+      value,
+      currency,
+      email,
+      phone,
+      content_ids,
+      order_id,
+      event_source_url: event_source_url || req.get('origin') || ''
+    });
+
+    return res.json({ ok: true, result });
+  } catch (err) {
+    console.error('/fb-capi error', err);
+    return res.status(500).json({ error: 'FB CAPI failed', details: err.message || err });
   }
 });
 

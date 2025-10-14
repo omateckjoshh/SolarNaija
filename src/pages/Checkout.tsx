@@ -121,6 +121,8 @@ const Checkout: React.FC = () => {
     });
 
     try {
+      // generate an event_id for deduplication between client pixel and server CAPI
+      const event_id = (typeof crypto !== 'undefined' && typeof (crypto as any).randomUUID === 'function') ? (crypto as any).randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       await loadPaystackScript();
       const Paystack = (window as any).PaystackPop;
       if (!Paystack) throw new Error('Paystack is not available');
@@ -154,7 +156,8 @@ const Checkout: React.FC = () => {
                 customer: customerInfo,
                 items: items,
                 paymentReference: response.reference,
-                verify: false // we already verified above
+                verify: false, // we already verified above
+                event_id // pass event id for server-side CAPI dedupe
               })
             });
 
@@ -164,10 +167,10 @@ const Checkout: React.FC = () => {
             }
 
             await createResp.json();
-            // Track purchase (server-side created order)
+            // Track purchase (server-side created order) - include event_id for dedupe
             try {
               const amountValue = Number(getTotalPrice()) || 0;
-              trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference });
+              trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference, event_id });
             } catch (trackErr) {
               console.debug('trackPurchase error (server flow)', trackErr);
             }
@@ -184,10 +187,28 @@ const Checkout: React.FC = () => {
             `Thank you for your order! Your payment of ₦${getTotalPrice().toLocaleString()} has been confirmed. Reference: ${response.reference}. We'll contact you soon for delivery details.`
           );
 
-          // Track purchase (client-side fallback flow)
+          // Track purchase (client-side fallback flow) - include event_id for dedupe
           try {
             const amountValue = Number(getTotalPrice()) || 0;
-            trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference, content_ids: order?.id ? [String(order.id)] : [] });
+            trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference, content_ids: order?.id ? [String(order.id)] : [], event_id });
+            // optionally, notify server-side CAPI endpoint if apiEndpoint not used for create-order
+            const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+            if (!apiEndpoint && window && window.fetch) {
+              // post to local server fb-capi endpoint (server must have FB_CAPI_ACCESS_TOKEN configured)
+              void fetch('/fb-capi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event_id,
+                  value: amountValue,
+                  currency: 'NGN',
+                  email: customerInfo.email,
+                  phone: customerInfo.phone,
+                  content_ids: order?.id ? [String(order.id)] : [],
+                  order_id: order?.id
+                })
+              }).catch(err => console.debug('fb-capi post failed', err));
+            }
           } catch (trackErr) {
             console.debug('trackPurchase error (client flow)', trackErr);
           }
