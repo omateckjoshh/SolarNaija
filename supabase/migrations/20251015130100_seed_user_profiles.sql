@@ -1,0 +1,4 @@
+-- Optional seed: insert profile rows for existing users (run only if you have user IDs)
+-- INSERT INTO public.user_profiles (user_id, full_name, phone, avatar_url)
+-- VALUES
+-- ('<existing-user-uuid-1>', 'John Doe', '+2348012345678', 'https://example.com/avatar1.jpg');
