@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, Zap, Battery, Shield, MessageCircle, Star, ArrowRight, ChevronLeft, ChevronRight, ShoppingCart, LucideShoppingCart } from 'lucide-react';
+import { Sun, Zap, Battery, Shield, MessageCircle, Star,  ChevronLeft, ChevronRight, ShoppingCart, LucideShoppingCart } from 'lucide-react';
 import { supabase } from '../App';
 
 interface Product {
@@ -134,14 +134,14 @@ const Home: React.FC = () => {
     {
       name: 'Solar Gadgets',
       description: 'Portable solar gadgets and accessories',
-      image: 'https://th.bing.com/th/id/OIP.GzyCd5ZNFjLMFw4xh0N6RgHaHa?w=137&h=180&c=7&r=0&o=7&cb=12&pid=1.7&rm=3',
+      image: 'https://tse4.mm.bing.net/th/id/OIP.PxNhSVKQvvT__cG9AFXYzgHaHa?cb=12&pid=ImgDet&w=191&h=191&c=7&o=7&rm=3',
       path: '/products/gadgets',
       icon: <Battery className="h-8 w-8" />
     }
   ];
 
   const handleWhatsAppClick = () => {
-    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || "+2349012345678";
+    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || "+2348169250046";
     const message = "Hi! I'm interested in your solar products. Can you help me?";
     const url = `https://wa.me/${whatsappNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
@@ -263,30 +263,31 @@ const Home: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {categories.map((category, index) => (
               <Link
                 key={index}
                 to={category.path}
-                className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+                aria-label={`Shop ${category.name}`}
+                className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-transform duration-300 overflow-hidden flex flex-col h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               >
-                <div className="aspect-w-16 aspect-h-9">
+                <div className="h-32 sm:h-36 w-full overflow-hidden">
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="p-6">
+                <div className="p-3 sm:p-4 flex flex-col flex-1">
                   <div className="flex items-center mb-3">
                     <div className="text-green-600 mr-3">
                       {category.icon}
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">{category.name}</h3>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{category.name}</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">{category.description}</p>
-                  <div className="flex items-center">
-                    <button className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
+                  <p className="text-gray-600 mb-3 text-sm sm:text-sm line-clamp-2">{category.description}</p>
+                  <div className="mt-auto">
+                    <button className="w-full sm:w-auto inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Shop Now
                     </button>
