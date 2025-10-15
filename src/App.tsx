@@ -17,6 +17,9 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductManagement from './pages/admin/ProductManagement';
 import ThankYou from './pages/ThankYou';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import Profile from './pages/Profile';
 
 // Context
 import { CartProvider } from './context/CartContext';
@@ -66,6 +69,13 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/thank-you" element={<ThankYou />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
                 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />

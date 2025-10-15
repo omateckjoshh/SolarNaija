@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, X, Search } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const categories = [
   { name: 'Inverters', path: '/products/inverters' },
@@ -21,6 +22,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const itemCount = getItemCount();
+  const { user, signOut } = useAuth();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,6 +149,19 @@ const Navbar: React.FC = () => {
             >
               All Products
             </Link>
+
+            {/* Auth links */}
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <Link to="/profile" className="text-gray-700 hover:text-green-600">{user.email}</Link>
+                <button onClick={() => signOut()} className="text-gray-700 hover:text-red-600">Sign out</button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/login" className="text-gray-700 hover:text-green-600">Sign in</Link>
+                <Link to="/signup" className="text-green-600 font-medium">Sign up</Link>
+              </div>
+            )}
           </div>
 
           {/* Cart and Mobile Menu */}
