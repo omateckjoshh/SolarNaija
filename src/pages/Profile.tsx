@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../App';
 
 const Profile: React.FC = () => {
   const { user, signOut, updateProfile } = useAuth();
@@ -8,11 +9,49 @@ const Profile: React.FC = () => {
   const [phone, setPhone] = useState(user?.user_metadata?.phone || '');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadProfile() {
+      if (!user) return;
+      setProfileLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('full_name, phone, avatar_url')
+          .eq('user_id', user.id)
+          .single();
+        if (error && (error as any).code !== 'PGRST116') throw error; // ignore no rows
+        if (data && mounted) {
+          setFullName(data.full_name || '');
+          setPhone(data.phone || '');
+        }
+      } catch (err) {
+        console.error('Failed to load profile', err);
+      } finally {
+        setProfileLoading(false);
+      }
+    }
+
+    loadProfile();
+    return () => { mounted = false; };
+  }, [user]);
 
   const handleUpdate = async () => {
     setMessage(null);
     setLoading(true);
     try {
+      // upsert into user_profiles
+      if (!user) throw new Error('No user');
+      const { error } = await supabase.from('user_profiles').upsert({
+        user_id: user.id,
+        full_name: fullName,
+        phone,
+        updated_at: new Date()
+      });
+      if (error) throw error;
+      // also update auth metadata for quick access
       await updateProfile({ full_name: fullName, phone });
       setMessage('Profile updated');
     } catch (err: any) {
@@ -27,6 +66,7 @@ const Profile: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4">My Account</h1>
       {user ? (
         <div className="space-y-4">
+          {profileLoading && <div className="text-sm text-gray-600">Loading profile…</div>}
           <div>
             <h2 className="text-lg font-semibold">Email</h2>
             <p>{user.email}</p>
