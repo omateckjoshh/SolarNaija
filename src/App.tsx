@@ -20,6 +20,7 @@ import ThankYou from './pages/ThankYou';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import ResetPassword from './pages/ResetPassword';
 
 // Context
 import { CartProvider } from './context/CartContext';
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/thank-you" element={<ThankYou />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Search } from 'lucide-react';
+import { ShoppingCart, Menu, X, Search, User, UserPlus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -23,6 +23,20 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const itemCount = getItemCount();
   const { user, signOut } = useAuth();
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement | null>(null);
+
+  // close account dropdown when clicking outside
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!isAccountOpen) return;
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setIsAccountOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [isAccountOpen]);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,13 +166,20 @@ const Navbar: React.FC = () => {
 
             {/* Auth links */}
             {user ? (
-              <div className="flex items-center space-x-4">
-                <Link to="/profile" className="text-gray-700 hover:text-green-600">{user.email}</Link>
-                <button onClick={() => signOut()} className="text-gray-700 hover:text-red-600">Sign out</button>
+              <div className="relative" ref={accountRef}>
+                <button onClick={() => setIsAccountOpen((s) => !s)} aria-label="Account menu" className="p-2 rounded-full hover:bg-gray-100">
+                  <User className="h-6 w-6 text-gray-700" />
+                </button>
+                {isAccountOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2">
+                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50">Profile</Link>
+                    <button onClick={() => signOut()} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50">Sign out</button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link to="/login" className="text-gray-700 hover:text-green-600">Sign in</Link>
+                <Link to="/login" className="p-2 rounded-md hover:bg-gray-100" aria-label="Sign in"><UserPlus className="h-5 w-5 text-gray-700"/></Link>
                 <Link to="/signup" className="text-green-600 font-medium">Sign up</Link>
               </div>
             )}

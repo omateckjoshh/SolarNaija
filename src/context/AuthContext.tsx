@@ -7,6 +7,8 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updateProfile: (data: { full_name?: string; phone?: string }) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -63,11 +65,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) throw error;
   };
 
+  const resetPassword = async (email: string) => {
+    // Supabase will send a password reset email using the configured SMTP
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/login'
+    });
+    if (error) throw error;
+  };
+
+  const updateProfile = async (data: { full_name?: string; phone?: string }) => {
+    const updates: any = {};
+    if (data.full_name) updates.full_name = data.full_name;
+    if (data.phone) updates.phone = data.phone;
+
+    const { error } = await supabase.auth.updateUser({ data: updates });
+    if (error) throw error;
+  };
+
   const value = {
     user,
     loading,
     signIn,
     signUp,
+    resetPassword,
+    updateProfile,
     signOut,
   };
 
