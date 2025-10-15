@@ -36,6 +36,9 @@ const ProductManagement: React.FC = () => {
     { value: 'panels', label: 'Solar Panels' },
     { value: 'kits', label: 'Solar Kits' },
     { value: 'combos', label: 'Combos' },
+    { value: 'street-lights', label: 'Solar Street Lights' },
+    { value: 'cctv', label: 'CCTV' },
+    { value: 'gadgets', label: 'Solar Gadgets' },
     { value: 'controllers', label: 'Charge Controllers' }
   ];
 

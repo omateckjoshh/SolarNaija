@@ -185,6 +185,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, onCancel, initialDa
                   <option value="panels">Solar Panels</option>
                   <option value="kits">Kits</option>
                   <option value="combos">Combos</option>
+                  <option value="street-lights">Solar Street Lights</option>
+                  <option value="cctv">CCTV</option>
+                  <option value="gadgets">Solar Gadgets</option>
                   <option value="controllers">Charge Controllers</option>
                 </select>
               </div>

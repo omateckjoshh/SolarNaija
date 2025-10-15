@@ -4,7 +4,7 @@ import { CreditCard, User, MapPin, Phone, Mail, Shield } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../App';
 import { sendOrderNotification, sendSMSNotification } from '../utils/notifications';
-import { trackPurchase, initFacebookPixel } from '../utils/analytics';
+import { trackPurchase } from '../utils/analytics';
 
 // PayStack configuration (script is loaded dynamically when needed)
 
@@ -166,7 +166,7 @@ const Checkout: React.FC = () => {
               throw new Error('Server order creation failed: ' + txt);
             }
 
-            await createResp.json();
+            const createdOrder = await createResp.json();
             // Track purchase (server-side created order) - include event_id for dedupe
             try {
               const amountValue = Number(getTotalPrice()) || 0;
@@ -175,7 +175,8 @@ const Checkout: React.FC = () => {
               console.debug('trackPurchase error (server flow)', trackErr);
             }
             clearCart();
-            navigate('/', { state: { orderSuccess: true, reference: response.reference } });
+            // navigate to dedicated thank-you page so FB Pixel and conversion rules can match a stable URL
+            navigate('/thank-you', { state: { orderSuccess: true, reference: response.reference, orderId: createdOrder?.id, items, total: getTotalPrice() } });
             return;
           }
 
@@ -193,7 +194,7 @@ const Checkout: React.FC = () => {
             trackPurchase({ value: amountValue, currency: 'NGN', reference: response.reference, content_ids: order?.id ? [String(order.id)] : [], event_id });
             // optionally, notify server-side CAPI endpoint if apiEndpoint not used for create-order
             const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
-            if (!apiEndpoint && window && window.fetch) {
+            if (!apiEndpoint && typeof window !== 'undefined' && typeof window.fetch === 'function') {
               // post to local server fb-capi endpoint (server must have FB_CAPI_ACCESS_TOKEN configured)
               void fetch('/fb-capi', {
                 method: 'POST',
@@ -214,7 +215,8 @@ const Checkout: React.FC = () => {
           }
 
           clearCart();
-          navigate('/', { state: { orderSuccess: true, reference: response.reference } });
+          // navigate to dedicated thank-you page so FB Pixel and conversion rules can match a stable URL
+          navigate('/thank-you', { state: { orderSuccess: true, reference: response.reference, orderId: order?.id, items, total: getTotalPrice() } });
         } catch (error) {
           console.error('Order creation failed:', error);
           alert('Payment succeeded but order creation failed. Please contact support with reference: ' + response.reference);

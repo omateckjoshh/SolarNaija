@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { createClient } from '@supabase/supabase-js';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import WhatsAppFloat from './components/WhatsAppFloat';
+import { initFacebookPixel } from './utils/analytics';
 
 // Components
 import Navbar from './components/Navbar';
@@ -15,6 +16,7 @@ import Checkout from './pages/Checkout';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductManagement from './pages/admin/ProductManagement';
+import ThankYou from './pages/ThankYou';
 
 // Context
 import { CartProvider } from './context/CartContext';
@@ -37,6 +39,16 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 function App() {
+  React.useEffect(() => {
+    const pixelId = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
+    if (pixelId) {
+      try {
+        initFacebookPixel(pixelId as string);
+      } catch (err) {
+        console.debug('Failed to init FB pixel', err);
+      }
+    }
+  }, []);
   return (
     <AuthProvider>
       <CartProvider>
@@ -53,6 +65,7 @@ function App() {
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/thank-you" element={<ThankYou />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />

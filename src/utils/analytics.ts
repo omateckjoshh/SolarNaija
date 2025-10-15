@@ -30,7 +30,7 @@ export function initFacebookPixel(pixelId?: string) {
     if (win.fbq) return; // already initialized
 
     // Standard FB pixel snippet
-    !(function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
+    (function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
       if (f.fbq) return;
       n = f.fbq = function() {
         n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);

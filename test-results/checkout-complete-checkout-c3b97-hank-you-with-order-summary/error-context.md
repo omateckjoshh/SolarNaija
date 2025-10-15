@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - link "SolarNaija Logo SolarNaija" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "SolarNaija Logo" [ref=e8]
+        - generic [ref=e9]: SolarNaija
+      - generic [ref=e10]:
+        - link "Home" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - button "Products" [ref=e13] [cursor=pointer]:
+          - text: Products
+          - img [ref=e14]
+        - link "All Products" [ref=e16] [cursor=pointer]:
+          - /url: /products
+      - generic [ref=e17]:
+        - button "Search products" [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+        - link [ref=e23] [cursor=pointer]:
+          - /url: /cart
+          - img [ref=e24]
+  - main [ref=e28]:
+    - generic [ref=e30]:
+      - heading "No items in cart" [level=2] [ref=e31]
+      - paragraph [ref=e32]: Add some products before checkout
+      - button "Browse Products" [ref=e33] [cursor=pointer]
+  - contentinfo [ref=e34]:
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - img "SolarNaija Logo" [ref=e39]
+            - generic [ref=e40]: SolarNaija
+          - paragraph [ref=e41]: Nigeria's leading provider of high-quality solar energy solutions. Powering homes and businesses with clean, renewable energy.
+          - button "Chat on WhatsApp" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e45]: Chat on WhatsApp
+        - generic [ref=e46]:
+          - heading "Quick Links" [level=3] [ref=e47]
+          - list [ref=e48]:
+            - listitem [ref=e49]:
+              - link "Home" [ref=e50] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e51]:
+              - link "All Products" [ref=e52] [cursor=pointer]:
+                - /url: /products
+            - listitem [ref=e53]:
+              - link "Inverters" [ref=e54] [cursor=pointer]:
+                - /url: /products/inverters
+            - listitem [ref=e55]:
+              - link "Batteries" [ref=e56] [cursor=pointer]:
+                - /url: /products/batteries
+            - listitem [ref=e57]:
+              - link "Solar Panels" [ref=e58] [cursor=pointer]:
+                - /url: /products/panels
+        - generic [ref=e59]:
+          - heading "Contact Us" [level=3] [ref=e60]
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - img [ref=e63]
+              - generic [ref=e65]: "+2348169250046"
+            - generic [ref=e66]:
+              - img [ref=e67]
+              - generic [ref=e70]: info@solarnaija.store
+            - generic [ref=e71]:
+              - img [ref=e72]
+              - generic [ref=e75]: Abuja, Nigeria
+      - paragraph [ref=e77]: © 2025 SolarNaija. All rights reserved. Powering Nigeria with clean energy.
+  - button "Chat on WhatsApp" [ref=e78] [cursor=pointer]:
+    - img [ref=e79]
+```

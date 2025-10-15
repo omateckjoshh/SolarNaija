@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, Zap, Battery, Shield, MessageCircle, Star, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sun, Zap, Battery, Shield, MessageCircle, Star, ArrowRight, ChevronLeft, ChevronRight, ShoppingCart, LucideShoppingCart } from 'lucide-react';
 import { supabase } from '../App';
 
 interface Product {
@@ -13,9 +13,13 @@ interface Product {
 }
 
 const Home: React.FC = () => {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  // featuredProducts state removed; use displayedFeatured instead
   const [loading, setLoading] = useState(true);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const [displayedFeatured, setDisplayedFeatured] = useState<Product[]>([]);
+  const shuffleTimerRef = useRef<number | null>(null);
+  const [isHoveringFeatured, setIsHoveringFeatured] = useState(false);
+  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
     fetchFeaturedProducts();
@@ -30,13 +34,51 @@ const Home: React.FC = () => {
         .limit(6);
 
       if (error) throw error;
-      setFeaturedProducts(data || []);
+      const list = data || [];
+      setDisplayedFeatured(list);
     } catch (error) {
       console.error('Error fetching featured products:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // shuffle displayed featured products periodically
+  useEffect(() => {
+    const shuffleArray = (arr: Product[]) => {
+      // simple Fisher-Yates shuffle
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+
+    const tick = () => {
+      if (isHoveringFeatured) return; // pause while hovering
+      // fade out, rotate, fade in
+      setIsFading(true);
+      window.setTimeout(() => {
+        setDisplayedFeatured(prev => {
+          if (!prev || prev.length === 0) return prev;
+          const shuffled = shuffleArray(prev.concat());
+          shuffled.push(shuffled.shift() as Product);
+          return shuffled;
+        });
+        setIsFading(false);
+      }, 300);
+    };
+
+    // start interval
+    shuffleTimerRef.current = window.setInterval(tick, 8000);
+    return () => {
+      if (shuffleTimerRef.current) {
+        clearInterval(shuffleTimerRef.current);
+        shuffleTimerRef.current = null;
+      }
+    };
+  }, [isHoveringFeatured]);
 
   const categories = [
     {
@@ -61,11 +103,40 @@ const Home: React.FC = () => {
       icon: <Sun className="h-8 w-8" />
     },
     {
+      name: 'Combos',
+      description: 'Bundle deals combining panels, batteries and inverters',
+      image: 'https://wndsbyabhzkadxxogoff.supabase.co/storage/v1/object/public/products/product-images/latrmuuz5ai-1760402430696.jpeg',
+      path: '/products/combos',
+      icon: <Zap className="h-8 w-8" />
+    },
+    {
       name: 'Solar Kits',
       description: 'Complete solar solutions ready to install',
       image: 'https://tse3.mm.bing.net/th/id/OIP.YaNvto4aZnH1ej0VNLJ8_QAAAA?rs=1&pid=ImgDetMain&o=7&rm=3',
       path: '/products/kits',
       icon: <Shield className="h-8 w-8" />
+    }
+    ,
+    {
+      name: 'Solar Street Lights',
+      description: 'Durable street lighting solutions for outdoor use',
+      image: 'https://th.bing.com/th/id/OIP.tmuzHsuBBVvIbNo_zk5ojQHaHa?w=190&h=190&c=7&r=0&o=7&cb=12&pid=1.7&rm=3',
+      path: '/products/street-lights',
+      icon: <Sun className="h-8 w-8" />
+    },
+    {
+      name: 'CCTV',
+      description: 'High-definition security cameras and accessories',
+      image: 'https://th.bing.com/th/id/OIP.JuTeRk4eFKMHIznxEO9yHAHaE8?w=258&h=180&c=7&r=0&o=7&cb=12&pid=1.7&rm=3',
+      path: '/products/cctv',
+      icon: <Star className="h-8 w-8" />
+    },
+    {
+      name: 'Solar Gadgets',
+      description: 'Portable solar gadgets and accessories',
+      image: 'https://th.bing.com/th/id/OIP.GzyCd5ZNFjLMFw4xh0N6RgHaHa?w=137&h=180&c=7&r=0&o=7&cb=12&pid=1.7&rm=3',
+      path: '/products/gadgets',
+      icon: <Battery className="h-8 w-8" />
     }
   ];
 
@@ -97,7 +168,7 @@ const Home: React.FC = () => {
                 className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold sm:text-lg transition-colors inline-flex items-center justify-center"
               >
                 Shop Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <LucideShoppingCart className="ml-2 h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -121,9 +192,13 @@ const Home: React.FC = () => {
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {featuredProducts.length > 0 ? (
-                featuredProducts.map((product) => (
+            <div
+              onMouseEnter={() => setIsHoveringFeatured(true)}
+              onMouseLeave={() => setIsHoveringFeatured(false)}
+              className={`grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 transition-opacity duration-300 ${isFading ? 'opacity-30' : 'opacity-100'}`}
+            >
+              {displayedFeatured.length > 0 ? (
+                displayedFeatured.map((product) => (
                   <div key={product.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                     <img
                       src={product.image}
@@ -210,9 +285,11 @@ const Home: React.FC = () => {
                     <h3 className="text-xl font-semibold text-gray-900">{category.name}</h3>
                   </div>
                   <p className="text-gray-600 mb-4">{category.description}</p>
-                  <div className="flex items-center text-green-600 font-medium">
-                    Shop Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <div className="flex items-center">
+                    <button className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Shop Now
+                    </button>
                   </div>
                 </div>
               </Link>

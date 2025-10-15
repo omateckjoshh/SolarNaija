@@ -10,6 +10,9 @@ const categories = [
   { name: 'Kits', path: '/products/kits' },
   { name: 'Combos', path: '/products/combos' },
   { name: 'Charge Controllers', path: '/products/controllers' },
+  { name: 'Solar Street Lights', path: '/products/street-lights' },
+  { name: 'CCTV', path: '/products/cctv' },
+  { name: 'Solar Gadgets', path: '/products/gadgets' },
 ];
 
 const Navbar: React.FC = () => {
@@ -151,7 +154,11 @@ const Navbar: React.FC = () => {
             {/* Search button + overlay */}
             <div className="relative">
               <button
-                onClick={() => setIsSearchOpen(true)}
+                onClick={() => {
+                  setIsSearchOpen(true);
+                  // Navigate to all products so the search input affects the product list
+                  navigate('/products');
+                }}
                 aria-label="Search products"
                 className="p-2 text-gray-700 hover:text-green-600 transition-colors"
               >
