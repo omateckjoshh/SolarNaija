@@ -16,6 +16,7 @@ import Checkout from './pages/Checkout';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductManagement from './pages/admin/ProductManagement';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import ThankYou from './pages/ThankYou';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -82,14 +83,14 @@ function App() {
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={
-                  <ProtectedRoute>
+                  <AdminProtectedRoute>
                     <AdminDashboard />
-                  </ProtectedRoute>
+                  </AdminProtectedRoute>
                 } />
                 <Route path="/admin/products" element={
-                  <ProtectedRoute>
+                  <AdminProtectedRoute>
                     <ProductManagement />
-                  </ProtectedRoute>
+                  </AdminProtectedRoute>
                 } />
               </Routes>
             </main>
