@@ -155,17 +155,17 @@ const Navbar: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => {
-                  setIsSearchOpen(true);
-                  // Navigate to all products so the search input affects the product list
+                  // Navigate to general products/search page with a smooth transition
                   navigate('/products');
                 }}
-                aria-label="Search products"
+                aria-label="Open product search"
                 className="p-2 text-gray-700 hover:text-green-600 transition-colors"
               >
                 <Search className="h-6 w-6" />
               </button>
 
-              {/* Search overlay/input - kept in DOM for smooth transitions */}
+              {/* Search overlay/input - kept in DOM for keyboard shortcuts (e.g., / or Ctrl+K).
+                  Clicking the search icon no longer opens this overlay; it just navigates to /products. */}
               <div
                 ref={searchRef}
                 role="dialog"
