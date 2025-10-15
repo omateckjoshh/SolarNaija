@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../App';
 
 const AdminLogin: React.FC = () => {
   const { signIn, user } = useAuth();
@@ -11,9 +12,7 @@ const AdminLogin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (user) {
-    return <Navigate to="/admin" replace />;
-  }
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +21,36 @@ const AdminLogin: React.FC = () => {
 
     try {
       await signIn(email, password);
-      // Navigation will happen automatically via the AuthContext
+      // After successful sign-in, explicitly verify admin membership
+      // before navigating to the admin dashboard.
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentUserId = sessionData?.session?.user?.id;
+      if (!currentUserId) {
+        setError('Signed in but unable to verify user. Please reload and try again.');
+        return;
+      }
+
+      const { data, error: adminErr } = await supabase
+        .from('admin_users')
+        .select('user_id')
+        .eq('user_id', currentUserId)
+        .maybeSingle();
+
+      if (adminErr) {
+        // If the table doesn't exist or another DB error occurs, show a generic message.
+        console.error('Admin membership check failed', adminErr);
+        setError('Unable to verify admin access. Please contact support.');
+        return;
+      }
+
+      if (data) {
+        navigate('/admin', { replace: true });
+      } else {
+        // Not an admin — don't navigate. Sign out to avoid leaving a non-admin
+        // authenticated in the admin UI and show a clear message.
+        await supabase.auth.signOut();
+        setError('You are not authorized to access the admin panel.');
+      }
     } catch (err: any) {
       setError(err.message || 'Invalid email or password');
     } finally {
@@ -115,16 +143,7 @@ const AdminLogin: React.FC = () => {
             </div>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 text-center">
-              Admin Login Credentials:
-            </p>
-            <div className="mt-2 text-xs text-gray-500 text-center bg-gray-50 p-3 rounded-lg">
-              <p>Email: support@solarnaija.store</p>
-              <p>Password: admin123</p>
-              <p className="mt-2 text-blue-600">Use these credentials to create your admin account</p>
-            </div>
-          </div>
+          {/* Removed exposed admin credentials to avoid leaking sensitive info */}
         </div>
 
         <div className="text-center">
