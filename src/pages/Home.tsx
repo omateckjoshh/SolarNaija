@@ -98,7 +98,7 @@ const Home: React.FC = () => {
     {
       name: 'Solar Panels',
       description: 'Premium solar panels with excellent efficiency',
-      image: 'https://inrorwxhikoolp5p-static.micyjz.com/cloud/lrBpjKlolrSRlkkrqiljio/weixinjietu_20240319152842.png',
+      image: 'https://i0.wp.com/spectralsolar.co.za/wp-content/uploads/2022/08/1219b544db09fdcd5d503e734022763c_1c40754b-b446-4a85-9c71-5a733eaeef10_800x-1.png?fit=800%2C800&ssl=1',
       path: '/products/panels',
       icon: <Sun className="h-8 w-8" />
     },
