@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { Star, Search, ShoppingCart } from 'lucide-react';
 import { supabase } from '../App';
 import { useCart } from '../context/CartContext';
+import Meta from '../components/Meta';
 
 interface Product {
   id: number;
@@ -114,6 +115,34 @@ const ProductList: React.FC = () => {
     controllers: 'Charge Controllers'
   };
 
+  const metaMap: Record<string, { title: string; description: string; keywords: string }> = {
+    '': {
+      title: 'Shop All Solar Products Online | Inverters, Batteries, Panels & More',
+      description: 'Explore all solar energy products at SolarNaija — high-quality inverters, batteries, panels, and kits for homes and businesses in Nigeria. Affordable prices, fast shipping.',
+      keywords: 'solar equipment Nigeria, solar products store, buy inverter online, solar battery Nigeria, solar panels Lagos, solar kits Abuja'
+    },
+    inverters: {
+      title: 'Buy Solar Inverters in Nigeria | Hybrid & Pure Sine Wave Inverters',
+      description: 'Discover top-quality solar inverters from trusted brands at SolarNaija. Choose hybrid, MPPT, or off-grid inverters — all with warranty and expert support.',
+      keywords: 'solar inverter Nigeria, hybrid inverter Nigeria, 3kva inverter, 5kva inverter, buy inverter Lagos, inverter installation Nigeria'
+    },
+    batteries: {
+      title: 'Buy Solar Batteries in Nigeria | Deep Cycle, Tubular & LiFePO4',
+      description: 'Shop durable solar batteries at SolarNaija — LiFePO4, tubular, and AGM options for reliable energy storage. Perfect for homes, offices, and businesses across Nigeria.',
+      keywords: 'solar battery Nigeria, tubular battery price, LiFePO4 battery Nigeria, inverter battery, deep cycle battery Lagos'
+    },
+    panels: {
+      title: 'Buy Solar Panels in Nigeria | Affordable Monocrystalline & Polycrystalline Panels',
+      description: 'Get premium solar panels at unbeatable prices from SolarNaija. High-efficiency monocrystalline and polycrystalline panels with fast nationwide delivery.',
+      keywords: 'solar panel Nigeria, monocrystalline panels, polycrystalline panels, solar panel price, buy solar panels Lagos, solar installation Nigeria'
+    },
+    kits: {
+      title: 'Complete Solar Kits for Homes & Offices | Ready-to-Install Solutions',
+      description: 'Get complete solar kits at SolarNaija — pre-configured systems including inverter, batteries, and panels. Easy setup, affordable pricing, and fast delivery across Nigeria.',
+      keywords: 'solar kits Nigeria, 1kw solar kit, 3kw solar kit, home solar system, solar package Nigeria'
+    }
+  };
+
   const handleAddToCart = (product: Product) => {
     addToCart(product, 1);
     // You could add a toast notification here
@@ -121,6 +150,11 @@ const ProductList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Meta
+        title={metaMap[category ?? ''].title}
+        description={metaMap[category ?? ''].description}
+        keywords={metaMap[category ?? ''].keywords}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">

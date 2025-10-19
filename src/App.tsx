@@ -22,6 +22,8 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import ResetPassword from './pages/ResetPassword';
+import Contact from './pages/Contact';
+import About from './pages/About';
 
 // Context
 import { CartProvider } from './context/CartContext';
@@ -74,6 +76,8 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Profile />
