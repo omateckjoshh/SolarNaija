@@ -6,9 +6,11 @@ const Contact: React.FC = () => {
   const description = 'Reach out to SolarNaija today for expert solar advice, installation support, or a free quote. Call, email, or chat via WhatsApp for fast assistance.';
   const keywords = 'solar contact Nigeria, solar consultation, solar installer Nigeria, solar company contact, renewable energy support';
 
+  const image = '/social-contact.png';
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <Meta title={title} description={description} keywords={keywords} />
+  <Meta title={title} description={description} keywords={keywords} image={image} />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact SolarNaija</h1>
         <p className="text-gray-600 mb-6">{description}</p>

@@ -17,6 +17,7 @@ const Home: React.FC = () => {
   const metaTitle = 'Buy Solar Inverters, Batteries & Panels in Nigeria | SolarNaija';
   const metaDescription = 'Shop premium solar inverters, batteries, and panels from SolarNaija — Nigeria’s trusted solar energy store. Clean power, expert support, fast delivery nationwide.';
   const metaKeywords = 'solar store Nigeria, buy solar inverter Nigeria, solar battery price Nigeria, solar panel shop, solar energy supplier Abuja, renewable energy Nigeria';
+  const metaImage = '/social-home.png';
 
   // featuredProducts state removed; use displayedFeatured instead
   const [loading, setLoading] = useState(true);
@@ -154,7 +155,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <Meta title={metaTitle} description={metaDescription} keywords={metaKeywords} />
+  <Meta title={metaTitle} description={metaDescription} keywords={metaKeywords} image={metaImage} />
   {/* Hero Section */}
   <section className="relative bg-gradient-to-br from-green-600 via-blue-600 to-green-700 text-white py-4 sm:py-20 min-h-[160px] sm:min-h-[420px]">
         <div className="absolute inset-0 bg-black opacity-20"></div>

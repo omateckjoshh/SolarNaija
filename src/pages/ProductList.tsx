@@ -154,6 +154,7 @@ const ProductList: React.FC = () => {
         title={metaMap[category ?? ''].title}
         description={metaMap[category ?? ''].description}
         keywords={metaMap[category ?? ''].keywords}
+        image={category ? `/social-${category}.png` : '/social-products.png'}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
