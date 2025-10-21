@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Replace SITE_URL with your production site URL, e.g. https://www.solarnaija.store -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.solarnaija.store/</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/inverters</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/batteries</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/panels</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/kits</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/combos</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/controllers</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/street-lights</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/cctv</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/products/gadgets</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/contact</loc>
+  </url>
+  <url>
+    <loc>https://www.solarnaija.store/about</loc>
+  </url>
+</urlset>

@@ -1,0 +1,9 @@
+# robots.txt for SolarNaija
+User-agent: *
+Allow: /
+
+# sitemap location (adjust if your deployed domain differs)
+Sitemap: https://www.solarnaija.store/sitemap.xml
+
+# Crawl-delay is optional; can be set for polite crawling
+# Crawl-delay: 10
