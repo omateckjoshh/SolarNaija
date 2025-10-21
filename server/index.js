@@ -342,5 +342,87 @@ app.post('/fb-capi', async (req, res) => {
   }
 });
 
+// Prerendered product page for social crawlers
+app.get('/product/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!id) return res.status(400).send('Invalid product id');
+
+    if (!supabase) return res.status(500).send('Supabase not configured on server');
+
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Supabase product fetch error', error);
+      return res.status(500).send('Product fetch failed');
+    }
+
+    if (!product) return res.status(404).send('Product not found');
+
+    // Build absolute image URL: prefer product.image if absolute, otherwise try SITE_URL or SUPABASE_URL
+    const SITE_URL = process.env.SITE_URL || process.env.VITE_SITE_URL || '';
+    let imageUrl = product.image || '';
+    if (imageUrl && !/^https?:\/\//i.test(imageUrl)) {
+      if (SITE_URL) imageUrl = SITE_URL.replace(/\/$/, '') + '/' + imageUrl.replace(/^\//, '');
+      else if (process.env.SUPABASE_URL) imageUrl = process.env.SUPABASE_URL.replace(/\/$/, '') + '/' + imageUrl.replace(/^\//, '');
+    }
+
+    const title = String(product.name || 'SolarNaija Product');
+    const description = String((product.description || '').replace(/\n/g, ' ')).slice(0, 300);
+    const url = (SITE_URL || '') + `/product/${id}`;
+
+    const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const html = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${esc(title)}</title>
+    <meta name="description" content="${esc(description)}" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="product" />
+    <meta property="og:title" content="${esc(title)}" />
+    <meta property="og:description" content="${esc(description)}" />
+    <meta property="og:url" content="${esc(url)}" />
+    <meta property="og:image" content="${esc(imageUrl)}" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${esc(title)}" />
+    <meta name="twitter:description" content="${esc(description)}" />
+    <meta name="twitter:image" content="${esc(imageUrl)}" />
+
+    <link rel="canonical" href="${esc(url)}" />
+    <script>/* redirect human users to SPA product page after meta tags */
+      (function(){
+        try { if (!/facebookexternalhit|Twitterbot|Slackbot|Discordbot|WhatsApp|Facebot|LinkedInBot|Pinterest/i.test(navigator.userAgent)) {
+          window.location.replace('${esc(url)}');
+        }}catch(e){}
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to product page…</p>
+    <script>
+      // fallback redirect
+      setTimeout(function(){ window.location.href = '${esc(url)}'; }, 700);
+    </script>
+  </body>
+</html>`;
+
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    return res.status(200).send(html);
+  } catch (err) {
+    console.error('/product/:id prerender error', err);
+    return res.status(500).send('Server error');
+  }
+});
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`Server listening on ${port}`));
