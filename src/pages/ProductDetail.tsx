@@ -4,6 +4,7 @@ import { Star, ShoppingCart, MessageCircle, Minus, Plus, Check, Facebook, Twitte
 import { trackEvent } from '../utils/analytics';
 import { supabase } from '../App';
 import { useCart } from '../context/CartContext';
+import Meta from '../components/Meta';
 
 interface Product {
   id: number;
@@ -201,6 +202,11 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Meta
+        title={`${product.name} | SolarNaija`}
+        description={(product.description || '').slice(0, 155)}
+        image={product.image}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
