@@ -112,7 +112,10 @@ const ProductList: React.FC = () => {
     panels: 'Solar Panels',
     kits: 'Solar Kits',
     combos: 'Solar Combos',
-    controllers: 'Charge Controllers'
+    controllers: 'Charge Controllers',
+    'street-lights': 'Solar Street Lights',
+    cctv: 'CCTV',
+    gadgets: 'Solar Gadgets'
   };
 
   const metaMap: Record<string, { title: string; description: string; keywords: string }> = {
@@ -140,6 +143,32 @@ const ProductList: React.FC = () => {
       title: 'Complete Solar Kits for Homes & Offices | Ready-to-Install Solutions',
       description: 'Get complete solar kits at SolarNaija — pre-configured systems including inverter, batteries, and panels. Easy setup, affordable pricing, and fast delivery across Nigeria.',
       keywords: 'solar kits Nigeria, 1kw solar kit, 3kw solar kit, home solar system, solar package Nigeria'
+    }
+    ,
+    combos: {
+      title: 'Solar Combos & Bundles in Nigeria | Panels, Batteries & Inverters',
+      description: 'Save with pre-configured solar combos at SolarNaija — bundled panels, batteries and inverters for easy installation and great value.',
+      keywords: 'solar combos Nigeria, solar bundles, panel battery inverter bundle, solar package Nigeria'
+    },
+    controllers: {
+      title: 'Charge Controllers in Nigeria | MPPT & PWM Solar Controllers',
+      description: 'Shop reliable charge controllers (MPPT and PWM) to protect and optimize your solar battery charging at SolarNaija.',
+      keywords: 'charge controller Nigeria, mppt controller Nigeria, pwm controller, solar controller Lagos'
+    },
+    'street-lights': {
+      title: 'Solar Street Lights Nigeria | Durable Outdoor Solar Lighting',
+      description: 'Durable solar street lights for outdoor and municipal use — energy-efficient, long-lasting, and easy to install from SolarNaija.',
+      keywords: 'solar street lights Nigeria, outdoor solar lighting, street light solar, solar lamp Nigeria'
+    },
+    gadgets: {
+      title: 'Solar Gadgets & Accessories | Portable Solar Chargers & More',
+      description: 'Discover portable solar gadgets, chargers and accessories at SolarNaija — convenient solar solutions for everyday use.',
+      keywords: 'solar gadgets Nigeria, portable solar charger, solar accessories, solar lights Nigeria'
+    },
+    cctv: {
+      title: 'CCTV & Solar-Powered Security Solutions | SolarNaija',
+      description: 'Browse CCTV cameras and security accessories, including solar-powered options for remote installations.',
+      keywords: 'CCTV Nigeria, solar CCTV, security cameras Nigeria, solar security systems'
     }
   };
 
