@@ -63,8 +63,10 @@ module.exports = async (req, res) => {
       </body>
     </html>`;
 
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.status(200).send(html);
+  // Cache for 1 hour on CDN (s-maxage); browsers will revalidate (max-age=0)
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=59');
+  res.status(200).send(html);
   } catch (err) {
     console.error('vercel product prerender error', err);
     res.status(500).send('Server error');
